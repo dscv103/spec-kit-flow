@@ -27,7 +27,14 @@ name = "speckit-workspace"
 version = "0.1.0"
 description = "SpecKitFlow monorepo workspace"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "speckit-core",
+    "speckit-flow",
+]
+
+[project.scripts]
+skf = "speckit_flow:main"
+speckit-flow = "speckit_flow:main"
 
 # =============================================================================
 # Hatch Workspace Configuration
