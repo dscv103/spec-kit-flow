@@ -150,7 +150,8 @@ def dag(
     try:
         # Get repository root and feature paths
         repo_root = get_repo_root()
-        feature_context = get_feature_paths(repo_root)
+        branch = get_current_branch()
+        feature_context = get_feature_paths(repo_root, branch)
         
         # Check if tasks.md exists
         if not feature_context.tasks_path.exists():
@@ -250,7 +251,7 @@ def dag(
         console.print(f"[red]Unexpected error:[/red] {e}")
         console.print()
         console.print("[dim]Please report this issue at:[/dim]")
-        console.print("  https://github.com/daveio/spec-kit-flow/issues")
+        console.print("  https://github.com/dscv103/spec-kit-flow/issues")
         raise typer.Exit(1)
 
 
@@ -350,7 +351,7 @@ def init(
             console.print(f"[red]Unexpected error:[/red] {e}")
             console.print()
             console.print("[dim]Please report this issue at:[/dim]")
-            console.print("  https://github.com/daveio/spec-kit-flow/issues")
+            console.print("  https://github.com/dscv103/spec-kit-flow/issues")
             raise typer.Exit(1)
         raise
 
@@ -430,7 +431,8 @@ def run(
         
         # Get feature context
         try:
-            feature_context = get_feature_paths(repo_root)
+            branch = get_current_branch()
+            feature_context = get_feature_paths(repo_root, branch)
         except FeatureNotFoundError as e:
             console.print(f"[red]Error:[/red] {e}")
             console.print()
@@ -586,7 +588,7 @@ def run(
         console.print(f"[red]Unexpected error:[/red] {e}")
         console.print()
         console.print("[dim]Please report this issue at:[/dim]")
-        console.print("  https://github.com/daveio/spec-kit-flow/issues")
+        console.print("  https://github.com/dscv103/spec-kit-flow/issues")
         raise typer.Exit(1)
 
 
@@ -838,7 +840,7 @@ def status() -> None:
         console.print(f"[red]Unexpected error:[/red] {e}")
         console.print()
         console.print("[dim]Please report this issue at:[/dim]")
-        console.print("  https://github.com/daveio/spec-kit-flow/issues")
+        console.print("  https://github.com/dscv103/spec-kit-flow/issues")
         raise typer.Exit(1)
 
 
@@ -902,7 +904,8 @@ def complete(
         
         # Try to load DAG to validate task exists
         try:
-            feature_context = get_feature_paths(repo_root)
+            branch = get_current_branch()
+            feature_context = get_feature_paths(repo_root, branch)
             dag_path = feature_context.feature_dir / "dag.yaml"
             
             if dag_path.exists():
@@ -987,7 +990,7 @@ def complete(
         console.print(f"[red]Unexpected error:[/red] {e}")
         console.print()
         console.print("[dim]Please report this issue at:[/dim]")
-        console.print("  https://github.com/daveio/spec-kit-flow/issues")
+        console.print("  https://github.com/dscv103/spec-kit-flow/issues")
         raise typer.Exit(1)
 
 
@@ -1041,7 +1044,8 @@ def merge(
         
         # Get feature context to determine spec_id
         try:
-            feature_context = get_feature_paths(repo_root)
+            branch = get_current_branch()
+            feature_context = get_feature_paths(repo_root, branch)
             spec_id = feature_context.feature_dir.name
         except FeatureNotFoundError as e:
             console.print(f"[red]Error:[/red] {e}")
@@ -1214,7 +1218,7 @@ def merge(
         console.print(f"[red]Unexpected error:[/red] {e}")
         console.print()
         console.print("[dim]Please report this issue at:[/dim]")
-        console.print("  https://github.com/daveio/spec-kit-flow/issues")
+        console.print("  https://github.com/dscv103/spec-kit-flow/issues")
         raise typer.Exit(1)
 
 
@@ -1278,7 +1282,8 @@ def abort(
                 # State exists but can't be loaded - we'll still clean it up
                 # Try to infer spec_id from feature context
                 try:
-                    feature_context = get_feature_paths(repo_root)
+                    branch = get_current_branch()
+                    feature_context = get_feature_paths(repo_root, branch)
                     spec_id = feature_context.feature_dir.name
                 except Exception:
                     # Can't determine spec_id - will clean up state but not worktrees
@@ -1286,7 +1291,8 @@ def abort(
         else:
             # No state file - try to infer spec_id from feature context
             try:
-                feature_context = get_feature_paths(repo_root)
+                branch = get_current_branch()
+                feature_context = get_feature_paths(repo_root, branch)
                 spec_id = feature_context.feature_dir.name
             except Exception:
                 # No feature context either
@@ -1404,7 +1410,7 @@ def abort(
         console.print(f"[red]Unexpected error:[/red] {e}")
         console.print()
         console.print("[dim]Please report this issue at:[/dim]")
-        console.print("  https://github.com/daveio/spec-kit-flow/issues")
+        console.print("  https://github.com/dscv103/spec-kit-flow/issues")
         raise typer.Exit(1)
 
 
