@@ -106,8 +106,9 @@ class StateManager:
         state.mark_updated()
         
         # Serialize to YAML
+        # Use mode='json' to ensure enums are converted to strings
         content = yaml.dump(
-            state.model_dump(),
+            state.model_dump(mode='json'),
             default_flow_style=False,
             sort_keys=False,
             allow_unicode=True,
