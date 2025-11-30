@@ -9,10 +9,10 @@
 </p>
 
 <p align="center">
-    <a href="https://github.com/github/spec-kit/actions/workflows/release.yml"><img src="https://github.com/github/spec-kit/actions/workflows/release.yml/badge.svg" alt="Release"/></a>
-    <a href="https://github.com/github/spec-kit/stargazers"><img src="https://img.shields.io/github/stars/github/spec-kit?style=social" alt="GitHub stars"/></a>
-    <a href="https://github.com/github/spec-kit/blob/main/LICENSE"><img src="https://img.shields.io/github/license/github/spec-kit" alt="License"/></a>
-    <a href="https://github.github.io/spec-kit/"><img src="https://img.shields.io/badge/docs-GitHub_Pages-blue" alt="Documentation"/></a>
+    <a href="https://github.com/dscv103/spec-kit-flow/actions/workflows/release.yml"><img src="https://github.com/dscv103/spec-kit-flow/actions/workflows/release.yml/badge.svg" alt="Release"/></a>
+    <a href="https://github.com/dscv103/spec-kit-flow/stargazers"><img src="https://img.shields.io/github/stars/dscv103/spec-kit-flow?style=social" alt="GitHub stars"/></a>
+    <a href="https://github.com/dscv103/spec-kit-flow/blob/main/LICENSE"><img src="https://img.shields.io/github/license/dscv103/spec-kit-flow" alt="License"/></a>
+    <a href="https://dscv103.github.io/spec-kit-flow/"><img src="https://img.shields.io/badge/docs-GitHub_Pages-blue" alt="Documentation"/></a>
 </p>
 
 ---
@@ -54,7 +54,7 @@ Install once and use everywhere:
 
 ```bash
 # Install Specify CLI for Spec-Driven Development
-uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
+uv tool install specify-cli --from git+https://github.com/dscv103/spec-kit-flow.git
 
 # Install SpecKitFlow for parallel orchestration
 uv tool install speckit-flow --from git+https://github.com/dscv103/spec-kit-flow.git
@@ -77,7 +77,7 @@ To upgrade tools, see the [Upgrade Guide](./docs/upgrade.md) for detailed instru
 
 ```bash
 # Upgrade Specify CLI
-uv tool install specify-cli --force --from git+https://github.com/github/spec-kit.git
+uv tool install specify-cli --force --from git+https://github.com/dscv103/spec-kit-flow.git
 
 # Upgrade SpecKitFlow
 uv tool install speckit-flow --force --from git+https://github.com/dscv103/spec-kit-flow.git
@@ -89,7 +89,7 @@ Run directly without installing:
 
 ```bash
 # Specify CLI
-uvx --from git+https://github.com/github/spec-kit.git specify init <PROJECT_NAME>
+uvx --from git+https://github.com/dscv103/spec-kit-flow.git specify init <PROJECT_NAME>
 
 # SpecKitFlow
 uvx --from git+https://github.com/dscv103/spec-kit-flow.git skf dag --visualize
@@ -307,6 +307,8 @@ Want to see Spec Kit in action? Watch our [video overview](https://www.youtube.c
    - [ ] [T003] [P] [deps:T001] Implement Task model
    - [ ] [T004] [deps:T002,T003] Create integration tests
    ```
+   
+   **Note**: Use `/speckit.tasks` to auto-generate properly formatted tasks, or ensure manual tasks use `[T###]` format (3 digits with brackets).
 
 2. **Initialize Configuration** - Set up parallel orchestration:
    ```bash
@@ -342,7 +344,7 @@ SpecKitFlow extends the standard task format with dependency markers:
 
 | Marker | Description | Example |
 |--------|-------------|---------|
-| `[T###]` | Task ID (required) | `[T001]` |
+| `[T###]` | Task ID (required, 3 digits with brackets) | `[T001]` |
 | `[P]` | Parallelizable (optional) | `[P]` - indicates no file conflicts |
 | `[deps:...]` | Dependencies (optional) | `[deps:T001,T002]` - depends on T001 and T002 |
 | `[US#]` | User story (optional) | `[US1]` - links to user story |
@@ -351,6 +353,8 @@ SpecKitFlow extends the standard task format with dependency markers:
 ```markdown
 - [ ] [T003] [P] [US2] [deps:T001,T002] Create UserService in src/services/UserService.ts
 ```
+
+**⚠️ Important**: Task IDs MUST be in brackets `[T###]` with exactly 3 digits for `skf dag` parser compatibility. When using `/speckit.tasks`, ensure the generated tasks follow this format.
 
 ## �🔧 Specify CLI Reference
 
@@ -838,7 +842,7 @@ rm gcm-linux_amd64.2.6.1.deb
 
 ## 💬 Support
 
-For support, please open a [GitHub issue](https://github.com/github/spec-kit/issues/new). We welcome bug reports, feature requests, and questions about using Spec-Driven Development.
+For support, please open a [GitHub issue](https://github.com/dscv103/spec-kit-flow/issues/new). We welcome bug reports, feature requests, and questions about using Spec-Driven Development.
 
 ## 🙏 Acknowledgements
 

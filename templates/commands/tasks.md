@@ -84,7 +84,9 @@ Every task MUST strictly follow this format:
 **Format Components**:
 
 1. **Checkbox**: ALWAYS start with `- [ ]` (markdown checkbox)
-2. **Task ID**: Sequential number (T001, T002, T003...) in execution order
+2. **Task ID**: MUST be in brackets with THREE digits: [T001], [T002], [T003]... (sequential, in execution order)
+   - ⚠️ CRITICAL: Brackets are REQUIRED for skf dag parser compatibility
+   - Format: [T###] not T### or T#
 3. **[P] marker**: Include ONLY if task is parallelizable (different files, no dependencies on incomplete tasks)
 4. **[Story] label**: REQUIRED for user story phase tasks only
    - Format: [US1], [US2], [US3], etc. (maps to user stories from spec.md)
@@ -96,14 +98,15 @@ Every task MUST strictly follow this format:
 
 **Examples**:
 
-- ✅ CORRECT: `- [ ] T001 Create project structure per implementation plan`
-- ✅ CORRECT: `- [ ] T005 [P] Implement authentication middleware in src/middleware/auth.py`
-- ✅ CORRECT: `- [ ] T012 [P] [US1] Create User model in src/models/user.py`
-- ✅ CORRECT: `- [ ] T014 [US1] Implement UserService in src/services/user_service.py`
+- ✅ CORRECT: `- [ ] [T001] Create project structure per implementation plan`
+- ✅ CORRECT: `- [ ] [T005] [P] Implement authentication middleware in src/middleware/auth.py`
+- ✅ CORRECT: `- [ ] [T012] [P] [US1] Create User model in src/models/user.py`
+- ✅ CORRECT: `- [ ] [T014] [US1] Implement UserService in src/services/user_service.py`
 - ❌ WRONG: `- [ ] Create User model` (missing ID and Story label)
 - ❌ WRONG: `T001 [US1] Create model` (missing checkbox)
 - ❌ WRONG: `- [ ] [US1] Create User model` (missing Task ID)
-- ❌ WRONG: `- [ ] T001 [US1] Create model` (missing file path)
+- ❌ WRONG: `- [ ] T001 [US1] Create model` (missing brackets around task ID)
+- ❌ WRONG: `- [ ] [T001] [US1] Create model` (missing file path)
 
 ### Task Organization
 
