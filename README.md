@@ -56,8 +56,8 @@ Install once and use everywhere:
 # Install Specify CLI for Spec-Driven Development
 uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
 
-# Install SpecKitFlow for parallel orchestration (monorepo workspace)
-uv tool install speckit-workspace --from git+https://github.com/dscv103/spec-kit-flow.git
+# Install SpecKitFlow for parallel orchestration
+uv tool install speckit-flow --from git+https://github.com/dscv103/spec-kit-flow.git
 ```
 
 Then use the tools directly:
@@ -79,8 +79,8 @@ To upgrade tools, see the [Upgrade Guide](./docs/upgrade.md) for detailed instru
 # Upgrade Specify CLI
 uv tool install specify-cli --force --from git+https://github.com/github/spec-kit.git
 
-# Upgrade SpecKitFlow (monorepo workspace)
-uv tool install speckit-workspace --force --from git+https://github.com/dscv103/spec-kit-flow.git
+# Upgrade SpecKitFlow
+uv tool install speckit-flow --force --from git+https://github.com/dscv103/spec-kit-flow.git
 ```
 
 #### Option 2: One-time Usage
@@ -91,7 +91,7 @@ Run directly without installing:
 # Specify CLI
 uvx --from git+https://github.com/github/spec-kit.git specify init <PROJECT_NAME>
 
-# SpecKitFlow (monorepo workspace)
+# SpecKitFlow
 uvx --from git+https://github.com/dscv103/spec-kit-flow.git skf dag --visualize
 ```
 

@@ -23,18 +23,26 @@ build-backend = "hatchling.build"
 # =============================================================================
 
 [project]
-name = "speckit-workspace"
+name = "speckit-flow"
 version = "0.1.0"
-description = "SpecKitFlow monorepo workspace"
+description = "Parallel DAG-based orchestration for AI coding agents"
 requires-python = ">=3.11"
 dependencies = [
-    "speckit-core",
-    "speckit-flow",
+    "typer",
+    "rich",
+    "networkx",
+    "pyyaml",
+    "pydantic>=2.0",
+    "filelock",
+    "watchfiles",
 ]
 
 [project.scripts]
 skf = "speckit_flow:main"
 speckit-flow = "speckit_flow:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/speckit_core", "src/speckit_flow"]
 
 # =============================================================================
 # Hatch Workspace Configuration
