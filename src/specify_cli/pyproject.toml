@@ -23,5 +23,6 @@ dependencies = [
 [project.scripts]
 specify = "specify_cli:main"
 
-[tool.hatch.build.targets.wheel]
-packages = ["."]
+# Let Hatchling auto-detect the package from __init__.py
+[tool.hatch.build.targets.wheel.force-include]
+"." = "specify_cli"

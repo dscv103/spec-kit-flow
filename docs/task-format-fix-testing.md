@@ -6,7 +6,7 @@ This document provides test cases to verify that the task format fix is working 
 
 ```bash
 # Ensure you have both tools installed
-uv tool install specify-cli --from git+https://github.com/dscv103/spec-kit-flow.git
+uv tool install specify-cli --from "git+https://github.com/dscv103/spec-kit-flow.git#subdirectory=src/specify_cli"
 uv tool install speckit-flow --from git+https://github.com/dscv103/spec-kit-flow.git
 
 # Create test project

@@ -54,10 +54,10 @@ Install once and use everywhere:
 
 ```bash
 # Install Specify CLI for Spec-Driven Development
-uv tool install specify-cli --from git+https://github.com/dscv103/spec-kit-flow.git
+uv tool install specify-cli --from "git+https://github.com/dscv103/spec-kit-flow.git#subdirectory=src/specify_cli"
 
 # Install SpecKitFlow for parallel orchestration
-uv tool install speckit-flow --from git+https://github.com/dscv103/spec-kit-flow.git
+uv tool install speckit-flow --from "git+https://github.com/dscv103/spec-kit-flow.git#subdirectory=src/speckit_flow"
 ```
 
 Then use the tools directly:
@@ -77,10 +77,10 @@ To upgrade tools, see the [Upgrade Guide](./docs/upgrade.md) for detailed instru
 
 ```bash
 # Upgrade Specify CLI
-uv tool install specify-cli --force --from git+https://github.com/dscv103/spec-kit-flow.git
+uv tool install specify-cli --force --from "git+https://github.com/dscv103/spec-kit-flow.git#subdirectory=src/specify_cli"
 
 # Upgrade SpecKitFlow
-uv tool install speckit-flow --force --from git+https://github.com/dscv103/spec-kit-flow.git
+uv tool install speckit-flow --force --from "git+https://github.com/dscv103/spec-kit-flow.git#subdirectory=src/speckit_flow"
 ```
 
 #### Option 2: One-time Usage
@@ -89,10 +89,10 @@ Run directly without installing:
 
 ```bash
 # Specify CLI
-uvx --from git+https://github.com/dscv103/spec-kit-flow.git specify init <PROJECT_NAME>
+uvx --from "git+https://github.com/dscv103/spec-kit-flow.git#subdirectory=src/specify_cli" specify init <PROJECT_NAME>
 
 # SpecKitFlow
-uvx --from git+https://github.com/dscv103/spec-kit-flow.git skf dag --visualize
+uvx --from "git+https://github.com/dscv103/spec-kit-flow.git#subdirectory=src/speckit_flow" skf dag --visualize
 ```
 
 **Benefits of persistent installation:**
@@ -817,6 +817,62 @@ Once the implementation is complete, test the application and resolve any runtim
 ---
 
 ## 🔍 Troubleshooting
+
+### ModuleNotFoundError: No module named 'specify_cli'
+
+If you see this error when running `specify` commands:
+
+```
+Traceback (most recent call last):
+  File "/home/user/.local/bin/specify", line 4, in <module>
+    from specify_cli import main
+ModuleNotFoundError: No module named 'specify_cli'
+```
+
+This error occurs when the `specify_cli` package wasn't properly included during installation. This was caused by an incorrect build configuration that has now been fixed in commit `[PENDING]`.
+
+**Solution: Reinstall from the latest version**
+
+```bash
+# Force reinstall with the fix
+uv tool install specify-cli --force --from "git+https://github.com/dscv103/spec-kit-flow.git#subdirectory=src/specify_cli"
+
+# Verify the installation
+python -c "import specify_cli; print('✓ Installation successful')"
+```
+
+**Alternative: Install from a specific commit (temporary workaround)**
+
+If you need to install while the fix is being merged:
+
+```bash
+# Uninstall first
+uv tool uninstall specify-cli
+
+# Install from your local clone after pulling the fix
+cd /path/to/spec-kit-flow
+uv tool install ./src/specify_cli
+```
+
+**Verify installation:**
+
+```bash
+# Check what's installed
+uv tool list
+
+# Try the command
+specify init .
+```
+
+If you still see the error after following these steps, the issue may be with your Python environment. Try:
+
+```bash
+# Check your Python version (must be 3.11+)
+python --version
+
+# Reinstall uv itself
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
 
 ### Git Credential Manager on Linux
 

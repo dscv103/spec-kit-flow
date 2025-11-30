@@ -8,7 +8,7 @@
 
 | What to Upgrade | Command | When to Use |
 |----------------|---------|-------------|
-| **CLI Tool Only** | `uv tool install specify-cli --force --from git+https://github.com/dscv103/spec-kit-flow.git` | Get latest CLI features without touching project files |
+| **CLI Tool Only** | `uv tool install specify-cli --force --from "git+https://github.com/dscv103/spec-kit-flow.git#subdirectory=src/specify_cli"` | Get latest CLI features without touching project files |
 | **Project Files** | `specify init --here --force --ai <your-agent>` | Update slash commands, templates, and scripts in your project |
 | **Both** | Run CLI upgrade, then project update | Recommended for major version updates |
 
@@ -29,7 +29,7 @@ uv tool install specify-cli --force --from git+https://github.com/github/spec-ki
 No upgrade needed—`uvx` always fetches the latest version. Just run your commands as normal:
 
 ```bash
-uvx --from git+https://github.com/dscv103/spec-kit-flow.git specify init --here --ai copilot
+uvx --from "git+https://github.com/dscv103/spec-kit-flow.git#subdirectory=src/specify_cli" specify init --here --ai copilot
 ```
 
 ### Verify the upgrade
@@ -378,7 +378,7 @@ If not found, reinstall:
 
 ```bash
 uv tool uninstall specify-cli
-uv tool install specify-cli --from git+https://github.com/dscv103/spec-kit-flow.git
+uv tool install specify-cli --from "git+https://github.com/dscv103/spec-kit-flow.git#subdirectory=src/specify_cli"
 ```
 
 ### "Do I need to run specify every time I open my project?"
