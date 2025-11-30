@@ -42,8 +42,8 @@ class TestAssignSessions:
         assert engine.get_task("T002").session == 0
         assert engine.get_task("T003").session == 0
     
-    def test_sequential_tasks_assigned_to_session_0(self):
-        """Non-parallel tasks (parallelizable=False) go to session 0."""
+    def test_tasks_in_different_phases_can_be_in_different_sessions(self):
+        """Tasks in different phases (sequential dependency) can be on different sessions."""
         # Arrange
         tasks = [
             TaskInfo(id="T001", name="Setup", dependencies=[], parallelizable=False),
@@ -54,15 +54,15 @@ class TestAssignSessions:
         # Act
         engine.assign_sessions(3)
         
-        # Assert
+        # Assert - Each task is in its own phase (single-task phases go to session 0)
         assert engine.get_task("T001").session == 0
         assert engine.get_task("T002").session == 0
     
     def test_single_task_in_phase_assigned_to_session_0(self):
-        """Single task in a phase goes to session 0 even if parallelizable."""
+        """Single task in a phase goes to session 0."""
         # Arrange
         tasks = [
-            TaskInfo(id="T001", name="Only", dependencies=[], parallelizable=True),
+            TaskInfo(id="T001", name="Only", dependencies=[]),
         ]
         engine = DAGEngine(tasks)
         
@@ -72,15 +72,15 @@ class TestAssignSessions:
         # Assert
         assert engine.get_task("T001").session == 0
     
-    def test_parallel_tasks_distributed_round_robin(self):
-        """Parallel tasks in same phase distributed round-robin."""
+    def test_tasks_in_same_phase_distributed_round_robin(self):
+        """Tasks in same phase (no dependencies on each other) distributed round-robin."""
         # Arrange
         tasks = [
             TaskInfo(id="T001", name="Root", dependencies=[]),
-            TaskInfo(id="T002", name="A", dependencies=["T001"], parallelizable=True),
-            TaskInfo(id="T003", name="B", dependencies=["T001"], parallelizable=True),
-            TaskInfo(id="T004", name="C", dependencies=["T001"], parallelizable=True),
-            TaskInfo(id="T005", name="D", dependencies=["T001"], parallelizable=True),
+            TaskInfo(id="T002", name="A", dependencies=["T001"]),
+            TaskInfo(id="T003", name="B", dependencies=["T001"]),
+            TaskInfo(id="T004", name="C", dependencies=["T001"]),
+            TaskInfo(id="T005", name="D", dependencies=["T001"]),
         ]
         engine = DAGEngine(tasks)
         
@@ -88,10 +88,10 @@ class TestAssignSessions:
         engine.assign_sessions(2)
         
         # Assert
-        # T001 is sequential (only task in phase)
+        # T001 is single task in phase 0
         assert engine.get_task("T001").session == 0
         
-        # T002-T005 are parallel, distributed 0, 1, 0, 1
+        # T002-T005 are in same phase (all depend on T001 only), distributed 0, 1, 0, 1
         # (sorted order: T002, T003, T004, T005)
         assert engine.get_task("T002").session == 0
         assert engine.get_task("T003").session == 1
@@ -99,13 +99,13 @@ class TestAssignSessions:
         assert engine.get_task("T005").session == 1
     
     def test_even_distribution_across_sessions(self):
-        """Tasks distributed evenly across available sessions."""
+        """Tasks in same phase distributed evenly across available sessions."""
         # Arrange
         tasks = [
             TaskInfo(id="T001", name="Setup", dependencies=[]),
-            TaskInfo(id="T002", name="A", dependencies=["T001"], parallelizable=True),
-            TaskInfo(id="T003", name="B", dependencies=["T001"], parallelizable=True),
-            TaskInfo(id="T004", name="C", dependencies=["T001"], parallelizable=True),
+            TaskInfo(id="T002", name="A", dependencies=["T001"]),
+            TaskInfo(id="T003", name="B", dependencies=["T001"]),
+            TaskInfo(id="T004", name="C", dependencies=["T001"]),
         ]
         engine = DAGEngine(tasks)
         
@@ -113,7 +113,7 @@ class TestAssignSessions:
         engine.assign_sessions(3)
         
         # Assert
-        # T001 to session 0
+        # T001 to session 0 (single task in phase)
         assert engine.get_task("T001").session == 0
         
         # T002, T003, T004 distributed to sessions 0, 1, 2
@@ -125,7 +125,7 @@ class TestAssignSessions:
         """Each task assigned to exactly one session."""
         # Arrange
         tasks = [
-            TaskInfo(id=f"T{i:03d}", name=f"Task {i}", dependencies=[], parallelizable=True)
+            TaskInfo(id=f"T{i:03d}", name=f"Task {i}", dependencies=[])
             for i in range(1, 11)
         ]
         engine = DAGEngine(tasks)
@@ -138,9 +138,9 @@ class TestAssignSessions:
         assert all(s is not None for s in sessions)
         assert len(sessions) == 10  # Each task has a session
     
-    def test_mixed_parallel_non_parallel_phase(self):
-        """Phase with mixed parallel flags assigned to session 0."""
-        # Arrange
+    def test_tasks_in_same_phase_distributed_regardless_of_parallel_flag(self):
+        """Tasks in same phase distributed across sessions (parallelizable flag is informational)."""
+        # Arrange - All tasks depend on T001, so T002 and T003 are in same phase
         tasks = [
             TaskInfo(id="T001", name="Setup", dependencies=[]),
             TaskInfo(id="T002", name="Parallel", dependencies=["T001"], parallelizable=True),
@@ -152,9 +152,11 @@ class TestAssignSessions:
         engine.assign_sessions(3)
         
         # Assert
-        # Phase with mixed parallelizability goes to session 0
+        # T001 in phase 0 (single task)
+        assert engine.get_task("T001").session == 0
+        # T002 and T003 in phase 1 (both depend only on T001), distributed across sessions
         assert engine.get_task("T002").session == 0
-        assert engine.get_task("T003").session == 0
+        assert engine.get_task("T003").session == 1
 
 
 class TestGetSessionTasks:
@@ -182,8 +184,8 @@ class TestGetSessionTasks:
         # Arrange
         tasks = [
             TaskInfo(id="T001", name="Root", dependencies=[]),
-            TaskInfo(id="T002", name="A", dependencies=["T001"], parallelizable=True),
-            TaskInfo(id="T003", name="B", dependencies=["T001"], parallelizable=True),
+            TaskInfo(id="T002", name="A", dependencies=["T001"]),
+            TaskInfo(id="T003", name="B", dependencies=["T001"]),
         ]
         engine = DAGEngine(tasks)
         engine.assign_sessions(2)
@@ -224,11 +226,11 @@ class TestGetSessionTasks:
     
     def test_multiple_independent_tasks_in_session(self):
         """Multiple independent tasks in same session."""
-        # Arrange
+        # Arrange - All tasks are in same phase (no dependencies)
         tasks = [
-            TaskInfo(id="T001", name="A", dependencies=[], parallelizable=True),
-            TaskInfo(id="T002", name="B", dependencies=[], parallelizable=True),
-            TaskInfo(id="T003", name="C", dependencies=[], parallelizable=True),
+            TaskInfo(id="T001", name="A", dependencies=[]),
+            TaskInfo(id="T002", name="B", dependencies=[]),
+            TaskInfo(id="T003", name="C", dependencies=[]),
         ]
         engine = DAGEngine(tasks)
         engine.assign_sessions(1)

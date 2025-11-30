@@ -338,9 +338,11 @@ class DAGEngine:
         """Assign tasks to sessions using round-robin distribution within phases.
         
         Distributes tasks across sessions to balance load while respecting
-        dependencies. Tasks in the same phase are assigned round-robin to
-        available sessions. Sequential (non-parallel) tasks are assigned to
-        session 0 by convention.
+        dependencies. Tasks in the same phase can execute in parallel by
+        definition (no inter-dependencies), so they are distributed across
+        available sessions using round-robin assignment.
+        
+        Single-task phases are assigned to session 0 by convention.
         
         This method mutates the TaskInfo objects in-place, setting their
         session attribute.
@@ -354,14 +356,14 @@ class DAGEngine:
         Example:
             >>> tasks = [
             ...     TaskInfo(id="T001", name="Setup", dependencies=[]),
-            ...     TaskInfo(id="T002", name="A", dependencies=["T001"], parallelizable=True),
-            ...     TaskInfo(id="T003", name="B", dependencies=["T001"], parallelizable=True),
+            ...     TaskInfo(id="T002", name="A", dependencies=["T001"]),
+            ...     TaskInfo(id="T003", name="B", dependencies=["T001"]),
             ... ]
             >>> engine = DAGEngine(tasks)
             >>> engine.assign_sessions(2)
-            >>> assert engine.get_task("T001").session == 0  # Sequential
-            >>> assert engine.get_task("T002").session == 0  # First parallel
-            >>> assert engine.get_task("T003").session == 1  # Second parallel
+            >>> assert engine.get_task("T001").session == 0  # Single task phase
+            >>> assert engine.get_task("T002").session == 0  # First in phase
+            >>> assert engine.get_task("T003").session == 1  # Second in phase
         """
         if num_sessions < 1:
             raise ValueError(f"num_sessions must be >= 1, got {num_sessions}")
@@ -369,16 +371,14 @@ class DAGEngine:
         phases = self.get_phases()
         
         for phase in phases:
-            # Check if all tasks in phase are parallelizable
             phase_tasks = [self.get_task(tid) for tid in phase]
-            all_parallel = all(t.parallelizable for t in phase_tasks)
             
-            if not all_parallel or len(phase) == 1:
-                # Sequential phase or single task: assign all to session 0
-                for task in phase_tasks:
-                    task.session = 0
+            if len(phase) == 1:
+                # Single task: assign to session 0
+                phase_tasks[0].session = 0
             else:
-                # Parallel phase: round-robin assignment
+                # Multiple tasks in same phase: distribute round-robin
+                # (tasks in same phase have no dependencies on each other)
                 for idx, task in enumerate(phase_tasks):
                     task.session = idx % num_sessions
     
