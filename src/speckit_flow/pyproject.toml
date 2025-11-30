@@ -1,0 +1,30 @@
+# =============================================================================
+# Package: speckit-flow (Orchestrator)
+# =============================================================================
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "speckit-flow"
+version = "0.1.0"
+description = "Parallel DAG-based orchestration for AI coding agents"
+requires-python = ">=3.11"
+dependencies = [
+    "speckit-core",
+    "typer",
+    "rich",
+    "networkx",
+    "pyyaml",
+    "pydantic>=2.0",
+    "filelock",
+    "watchfiles",
+]
+
+[project.scripts]
+skf = "speckit_flow:main"
+speckit-flow = "speckit_flow:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]

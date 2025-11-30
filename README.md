@@ -154,7 +154,86 @@ Want to see Spec Kit in action? Watch our [video overview](https://www.youtube.c
 | [SHAI (OVHcloud)](https://github.com/ovh/shai)            | ✅ | |
 | [Windsurf](https://windsurf.com/)                         | ✅ |                                                   |
 
-## 🔧 Specify CLI Reference
+## � SpecKitFlow: Parallel Orchestration
+
+**SpecKitFlow** extends Spec-Driven Development with parallel task orchestration using git worktrees and DAG-based dependency resolution. This enables multiple concurrent AI agent sessions working on independent tasks simultaneously, targeting **60-70% reduction in implementation time**.
+
+### Key Features
+
+- **🔀 DAG-Based Task Orchestration** - Automatically resolves task dependencies and identifies parallelizable work
+- **🌳 Git Worktree Isolation** - Each session works in isolated worktrees preventing conflicts
+- **📊 Real-Time Dashboard** - Monitor progress across all sessions with live updates
+- **💾 Checkpoint & Recovery** - Graceful interruption with state preservation
+- **🔄 Intelligent Merging** - Automatic conflict detection and sequential branch integration
+
+### SpecKitFlow Commands (skf)
+
+| Command | Description |
+|---------|-------------|
+| `skf init` | Initialize SpecKitFlow configuration for parallel orchestration |
+| `skf dag` | Generate task dependency graph from tasks.md |
+| `skf dag --visualize` | Display ASCII tree visualization of phases and tasks |
+| `skf run` | Execute full parallel orchestration across multiple sessions |
+| `skf status` | Display current orchestration progress and session states |
+| `skf complete <TASK_ID>` | Manually mark a task as completed |
+| `skf merge` | Integrate all session branches into single integration branch |
+| `skf abort` | Terminate orchestration and cleanup worktrees |
+
+### Parallel Workflow
+
+1. **Prepare Tasks** - Create tasks.md with dependency markers:
+   ```markdown
+   - [ ] [T001] [deps:] Setup project structure
+   - [ ] [T002] [P] [deps:T001] Implement User model
+   - [ ] [T003] [P] [deps:T001] Implement Task model
+   - [ ] [T004] [deps:T002,T003] Create integration tests
+   ```
+
+2. **Initialize Configuration** - Set up parallel orchestration:
+   ```bash
+   skf init --sessions 3 --agent copilot
+   ```
+
+3. **Generate DAG** - Build dependency graph and assign tasks to sessions:
+   ```bash
+   skf dag --visualize
+   ```
+
+4. **Run Orchestration** - Execute parallel implementation:
+   ```bash
+   skf run
+   # Opens prompts for each session worktree
+   # Work on tasks in separate VS Code windows
+   # System monitors completion automatically
+   ```
+
+5. **Monitor Progress** - Track real-time status:
+   ```bash
+   skf status
+   ```
+
+6. **Merge Results** - Integrate all session branches:
+   ```bash
+   skf merge --test "pytest tests/"
+   ```
+
+### Task Format Extensions
+
+SpecKitFlow extends the standard task format with dependency markers:
+
+| Marker | Description | Example |
+|--------|-------------|---------|
+| `[T###]` | Task ID (required) | `[T001]` |
+| `[P]` | Parallelizable (optional) | `[P]` - indicates no file conflicts |
+| `[deps:...]` | Dependencies (optional) | `[deps:T001,T002]` - depends on T001 and T002 |
+| `[US#]` | User story (optional) | `[US1]` - links to user story |
+
+**Example Task with All Markers:**
+```markdown
+- [ ] [T003] [P] [US2] [deps:T001,T002] Create UserService in src/services/UserService.ts
+```
+
+## �🔧 Specify CLI Reference
 
 The `specify` command supports the following options:
 

@@ -1,24 +1,70 @@
-[project]
-name = "specify-cli"
-version = "0.0.22"
-description = "Specify CLI, part of GitHub Spec Kit. A tool to bootstrap your projects for Spec-Driven Development (SDD)."
-requires-python = ">=3.11"
-dependencies = [
-    "typer",
-    "rich",
-    "httpx[socks]",
-    "platformdirs",
-    "readchar",
-    "truststore>=0.10.4",
-]
-
-[project.scripts]
-specify = "specify_cli:main"
+# =============================================================================
+# SpecKitFlow Monorepo - Root Configuration
+# =============================================================================
+# This is a Hatch workspace containing three packages:
+# - specify-cli: Existing CLI (entry point: specify)
+# - speckit-core: Shared library (no entry point)
+# - speckit-flow: New orchestrator (entry points: skf, speckit-flow)
+#
+# Each package has its own pyproject.toml in src/<package>/
+#
+# Development workflow:
+#   hatch env create           # Create development environment
+#   hatch shell                # Activate environment
+#   hatch build                # Build all packages (from subdirectories)
+# =============================================================================
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/specify_cli"]
+# =============================================================================
+# Root Project Metadata (for workspace management)
+# =============================================================================
+
+[project]
+name = "speckit-workspace"
+version = "0.1.0"
+description = "SpecKitFlow monorepo workspace"
+requires-python = ">=3.11"
+dependencies = []
+
+# =============================================================================
+# Hatch Workspace Configuration
+# =============================================================================
+
+[tool.hatch.envs.default]
+description = "Default development environment with all packages installed"
+extra-dependencies = [
+    # Development and testing tools
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "mypy>=1.0",
+    "ruff>=0.1.0",
+]
+
+# Add all source directories to PYTHONPATH for development
+[tool.hatch.envs.default.env-vars]
+PYTHONPATH = "src/specify_cli:src/speckit_core:src/speckit_flow"
+
+[tool.hatch.envs.default.scripts]
+# Install local packages in editable mode (run after env creation)
+install-packages = [
+    "pip install -e src/speckit_core",
+    "pip install -e src/speckit_flow",
+]
+
+# Common development commands
+test = "pytest {args:tests}"
+test-cov = "pytest --cov=src --cov-report=html --cov-report=term {args:tests}"
+lint = "ruff check src/"
+format = "ruff format src/"
+type-check = "mypy src/speckit_core src/speckit_flow --strict"
+
+# Build all packages (requires running from each subdirectory)
+build-all = """
+cd src/specify_cli && hatch build -c
+cd ../../src/speckit_core && hatch build -c
+cd ../../src/speckit_flow && hatch build -c
+"""
 

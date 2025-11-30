@@ -12,6 +12,23 @@
 """
 Specify CLI - Setup tool for Specify projects
 
+This CLI is responsible for bootstrapping new Spec-Kit projects by:
+- Downloading templates from GitHub releases
+- Extracting and setting up project structure
+- Initializing git repositories
+- Configuring AI assistant integrations
+
+Note: This package is intentionally kept separate from speckit-core and speckit-flow.
+      - speckit-core: Shared utilities for git repo/feature path operations (used by speckit-flow)
+      - speckit-flow: DAG-based parallel orchestration system
+      - specify-cli: Standalone project initialization tool
+
+If this CLI ever needs to perform git repository or feature path operations,
+import from speckit_core.paths instead of reimplementing:
+    from speckit_core.paths import get_repo_root, get_current_branch, get_feature_paths
+    from speckit_core.tasks import parse_tasks_file
+    from speckit_core.models import TaskInfo, FeatureContext
+
 Usage:
     uvx specify-cli.py init <project-name>
     uvx specify-cli.py init .
