@@ -21,8 +21,10 @@
 
 - [🤔 What is Spec-Driven Development?](#-what-is-spec-driven-development)
 - [⚡ Get Started](#-get-started)
+- [� Parallel Implementation with SpecKitFlow](#-parallel-implementation-with-speckitflow)
 - [📽️ Video Overview](#️-video-overview)
 - [🤖 Supported AI Agents](#-supported-ai-agents)
+- [🚀 SpecKitFlow: Parallel Orchestration](#-speckitflow-parallel-orchestration)
 - [🔧 Specify CLI Reference](#-specify-cli-reference)
 - [📚 Core Philosophy](#-core-philosophy)
 - [🌟 Development Phases](#-development-phases)
@@ -42,7 +44,7 @@ Spec-Driven Development **flips the script** on traditional software development
 
 ## ⚡ Get Started
 
-### 1. Install Specify CLI
+### 1. Install Specify CLI & SpecKitFlow
 
 Choose your preferred installation method:
 
@@ -51,20 +53,34 @@ Choose your preferred installation method:
 Install once and use everywhere:
 
 ```bash
+# Install Specify CLI for Spec-Driven Development
 uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
+
+# Install SpecKitFlow for parallel orchestration
+uv tool install speckit-flow --from git+https://github.com/daveio/spec-kit-flow.git
 ```
 
-Then use the tool directly:
+Then use the tools directly:
 
 ```bash
+# Spec-Driven Development
 specify init <PROJECT_NAME>
 specify check
+
+# Parallel Orchestration
+skf init --sessions 3
+skf dag --visualize
+skf run
 ```
 
-To upgrade Specify, see the [Upgrade Guide](./docs/upgrade.md) for detailed instructions. Quick upgrade:
+To upgrade tools, see the [Upgrade Guide](./docs/upgrade.md) for detailed instructions. Quick upgrade:
 
 ```bash
+# Upgrade Specify CLI
 uv tool install specify-cli --force --from git+https://github.com/github/spec-kit.git
+
+# Upgrade SpecKitFlow
+uv tool install speckit-flow --force --from git+https://github.com/daveio/spec-kit-flow.git
 ```
 
 #### Option 2: One-time Usage
@@ -72,12 +88,16 @@ uv tool install specify-cli --force --from git+https://github.com/github/spec-ki
 Run directly without installing:
 
 ```bash
+# Specify CLI
 uvx --from git+https://github.com/github/spec-kit.git specify init <PROJECT_NAME>
+
+# SpecKitFlow
+uvx --from git+https://github.com/daveio/spec-kit-flow.git skf dag --visualize
 ```
 
 **Benefits of persistent installation:**
 
-- Tool stays installed and available in PATH
+- Tools stay installed and available in PATH
 - No need to create shell aliases
 - Better tool management with `uv tool list`, `uv tool upgrade`, `uv tool uninstall`
 - Cleaner shell configuration
@@ -126,7 +146,106 @@ Use **`/speckit.implement`** to execute all tasks and build your feature accordi
 
 For detailed step-by-step instructions, see our [comprehensive guide](./spec-driven.md).
 
-## 📽️ Video Overview
+## � Parallel Implementation with SpecKitFlow
+
+SpecKitFlow enables **parallel task execution** across multiple AI agent sessions using git worktrees and DAG-based orchestration. This approach can reduce implementation time by 60-70% for projects with independent tasks.
+
+### How It Works
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  1. DAG Generation                                          │
+│  tasks.md → Dependency Graph → Parallel Phases             │
+└────────────────┬────────────────────────────────────────────┘
+                 ↓
+┌─────────────────────────────────────────────────────────────┐
+│  2. Worktree Creation                                       │
+│  • Session 0: .worktrees/session-0-setup/                  │
+│  • Session 1: .worktrees/session-1-feature-a/              │
+│  • Session 2: .worktrees/session-2-feature-b/              │
+└────────────────┬────────────────────────────────────────────┘
+                 ↓
+┌─────────────────────────────────────────────────────────────┐
+│  3. Parallel Execution (IDE Notification Mode)              │
+│  • Open each worktree in VS Code                           │
+│  • Agent works on assigned tasks independently              │
+│  • Completion detected via tasks.md watching                │
+└────────────────┬────────────────────────────────────────────┘
+                 ↓
+┌─────────────────────────────────────────────────────────────┐
+│  4. Intelligent Merge                                       │
+│  • Analyze changes across sessions                          │
+│  • Detect conflicts before merging                          │
+│  • Sequential merge with validation                         │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Architecture Overview
+
+**Package Structure:**
+- `specify-cli` - Original Spec-Driven Development CLI
+- `speckit-core` - Shared utilities (path resolution, task parsing, models)
+- `speckit-flow` - Parallel orchestration system (DAG engine, worktree management, state)
+
+**Runtime Artifacts:**
+- `.speckit/speckit-flow.yaml` - Orchestration configuration
+- `.speckit/flow-state.yaml` - Current orchestration state with locking
+- `.speckit/checkpoints/` - State snapshots for recovery
+- `.speckit/completions/` - Manual completion markers
+- `.worktrees-{spec-id}/` - Session worktrees (isolated git directories)
+- `specs/{branch}/dag.yaml` - Generated task dependency graph
+
+### Quick Start Example
+
+```bash
+# 1. Create your tasks with dependencies
+cd my-project
+cat > specs/001-api/tasks.md << 'EOF'
+# Tasks
+- [ ] [T001] [deps:] Setup project structure
+- [ ] [T002] [P] [deps:T001] Implement User API
+- [ ] [T003] [P] [deps:T001] Implement Task API
+- [ ] [T004] [deps:T002,T003] Add integration tests
+EOF
+
+# 2. Initialize SpecKitFlow
+skf init --sessions 3 --agent copilot
+
+# 3. Generate DAG and visualize
+skf dag --visualize
+# Output:
+# DAG Phases
+# ├── Phase 0 (1 tasks)
+# │   └── T001 Setup project structure [Session 0]
+# ├── Phase 1 (2 tasks, 2 parallel)
+# │   ├── T002 [P] Implement User API [Session 0] (deps: T001)
+# │   └── T003 [P] Implement Task API [Session 1] (deps: T001)
+# └── Phase 2 (1 tasks)
+#     └── T004 Add integration tests [Session 0] (deps: T002, T003)
+
+# 4. Run parallel orchestration
+skf run --dashboard
+# System prompts: "Open .worktrees-001/session-0-setup in VS Code"
+# System prompts: "Open .worktrees-001/session-1-user-api in VS Code"
+# Work on tasks in parallel sessions...
+
+# 5. Check progress anytime
+skf status
+
+# 6. Merge when complete
+skf merge --test "pytest tests/"
+```
+
+### Benefits
+
+- **⚡ Faster Implementation** - 60-70% time reduction with 3+ parallel sessions
+- **🔒 Conflict Prevention** - Git worktrees provide complete isolation
+- **📈 Automatic Dependency Resolution** - DAG ensures correct task ordering
+- **💾 Resilient to Interruption** - Checkpoint recovery and graceful shutdown
+- **🎯 Task-Level Tracking** - Fine-grained progress monitoring
+- **🔄 Dual Completion Detection** - File watching + manual marking for reliability
+
+## �📽️ Video Overview
 
 Want to see Spec Kit in action? Watch our [video overview](https://www.youtube.com/watch?v=a9eR1xsfvHg&pp=0gcJCckJAYcqIYzv)!
 
@@ -386,11 +505,20 @@ Our research and experimentation focus on:
 
 ## 🔧 Prerequisites
 
+### For Spec-Driven Development (specify)
+
 - **Linux/macOS/Windows**
 - [Supported](#-supported-ai-agents) AI coding agent.
 - [uv](https://docs.astral.sh/uv/) for package management
 - [Python 3.11+](https://www.python.org/downloads/)
 - [Git](https://git-scm.com/downloads)
+
+### For Parallel Orchestration (SpecKitFlow/skf)
+
+All of the above, plus:
+- **Git Worktree Support** - Git 2.5+ (for isolated parallel sessions)
+- **VS Code** (recommended for IDE notification mode with Copilot)
+- **Task Dependencies** - Tasks must include `[deps:...]` markers in tasks.md
 
 If you encounter issues with an agent, please open an issue so we can refine the integration.
 
